@@ -14,6 +14,8 @@ import java.util.List;
  * 新生代中：eden和survivor的比值默认为8:1， 可通过-XX:SurvivorRatio=8调整
  * -Xmn声明新生代大小是10MB，即eden为8MB，survivor为1MB
  *
+ * -XX:+HeapDumpBeforeFullGC -XX:+HeapDumpAfterFullGC
+ *
  * @author hzchenya
  * @date 2019-11-14 10:11
  * @version TODO
