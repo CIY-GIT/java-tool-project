@@ -22,7 +22,8 @@ public class Question12
 	public static void main(String[] args)
 	{
 		Scanner in = new Scanner(System.in);
-		System.out.println(longestValidParentheses(in.nextLine()));
+		String s = in.nextLine();
+		System.out.println(longestValidParentheses(s));
 	}
 
 	public static int longestValidParentheses(String s)
@@ -49,4 +50,5 @@ public class Question12
 		}
 		return ans;
 	}
+
 }
