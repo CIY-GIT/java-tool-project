@@ -17,186 +17,130 @@ import java.util.Scanner;
  */
 public class Question1
 {
+	public static Map<String, Temp.Node> nodeMap = new HashMap();
+
 	public static void main(String[] args)
 	{
 		Scanner scanner = new Scanner(System.in);
-		String str = scanner.nextLine();
-		String[] strArr = str.split(" ");
-		String link1Index = strArr[0];
-		String link2Index = strArr[1];
+		String[] params = scanner.nextLine().split(" ");
+		String head1Addr = params[0];
+		String head2Addr = params[1];
+		int size = Integer.parseInt(params[2]);
 
-		//<addr, Node> 根据输入构造 node和Map，方面后面构造链表
-		Map<String, Node> nodeMap = new HashMap<>();
-		int total = Integer.parseInt(strArr[2]);
-		for (int i = 0; i < total; i++)
+		//构造节点
+		for(int i=1;i<=size;i++)
 		{
-			String[] strArr1 = scanner.nextLine().split(" ");
-			String address = strArr1[0];
-			int data = Integer.parseInt(strArr1[1]);
-			String nextAddress = strArr1[2];
-
-			if (nodeMap.containsKey(address))
-			{
-				Node node = nodeMap.get(address);
-				node.setData(data);
-				node.setNext(getNode(nextAddress, nodeMap));
-				nodeMap.put(address, node);
-			}
-			else
-			{
-				Node node = new Node(address, data, null, getNode(nextAddress, nodeMap));
-				nodeMap.put(address, node);
-			}
+			String[] nodeInfo = scanner.nextLine().split(" ");
+			buildNode(nodeInfo[0], Integer.parseInt(nodeInfo[1]), nodeInfo[2]);
 		}
-		scanner.close();
 
-		//构造链表，返回 链表长度和尾节点地址（用于反转）
-		String[] link1Info = buildLinkList(link1Index, nodeMap, false);
-		String[] link2Info = buildLinkList(link2Index, nodeMap, false);
+		//获取列表大小和tail地址
+		String[] link1Info = getLinkInfo(head1Addr);
+		String[] link2Info = getLinkInfo(head2Addr);
 
-		//merge 合并
-		if (Integer.parseInt(link2Info[0]) > Integer.parseInt(link1Info[0]))
+		//合并
+		String mergeHeadAddr;
+		if(Integer.parseInt(link1Info[0]) > Integer.parseInt(link2Info[0]))
 		{
-			merge(nodeMap.get(link2Index), nodeMap.get(link1Info[1]), 2);
-			buildLinkList(link2Index, nodeMap, true);
+			merge(nodeMap.get(head1Addr),nodeMap.get(link2Info[1]),2);
+			mergeHeadAddr = head1Addr;
 		}
 		else
 		{
-			merge(nodeMap.get(link1Index), nodeMap.get(link2Info[1]), 2);
-			buildLinkList(link1Index, nodeMap, true);
+			merge(nodeMap.get(head2Addr),nodeMap.get(link1Info[1]),2);
+			mergeHeadAddr = head2Addr;
+		}
+
+		Temp.Node mergeIndex = nodeMap.get(mergeHeadAddr);
+		while(mergeIndex != null)
+		{
+			System.out.println(mergeIndex.toString());
+			mergeIndex = mergeIndex.next;
+		}
+	}
+
+	public static void merge(Temp.Node bigHead, Temp.Node smallTail, int step)
+	{
+		int index = 1;
+		while(smallTail != null)
+		{
+
+			if(index%step == 0)
+			{
+				//插入small节点
+				Temp.Node bigNextTemp = bigHead.next;
+				bigHead.next = smallTail;
+				smallTail.next = bigNextTemp;
+				//左移small节点
+				smallTail = smallTail.pre;
+				bigHead = bigNextTemp;
+				index = 1;
+			}
+			else
+			{
+				bigHead = bigHead.next;
+				index++;
+			}
 		}
 
 	}
 
-	private static Node getNode(String address, Map<String, Node> nodeMap)
+	public static String[] getLinkInfo(String headAddr)
 	{
-		if (!nodeMap.containsKey(address) && !"-1".equals(address))
+		Temp.Node index = nodeMap.get(headAddr);
+		int size = 1;
+		while(index.next != null && index.next.value != 0)
 		{
-			nodeMap.put(address, new Node(address));
-		}
-		return nodeMap.get(address);
-	}
-
-	public static String[] buildLinkList(String indexAddress, Map<String, Node> nodeMap, boolean isPrint)
-	{
-		Node index = nodeMap.get(indexAddress);
-		int size = 0;
-		String tailAddress = null;
-		while (index != null)
-		{
+			index = index.next;
 			size ++;
-			if (isPrint)
-				System.out.println(index.toString());
-			Node temp = index;
-			index = index.getNext();
-			if (index != null)
-			{
-				index.setPre(temp);
-			}
-			else
-			{
-				tailAddress = temp.getAddress();
-			}
 		}
-
-		return new String[]{String.valueOf(size), tailAddress};
+		return new String[]{size+"", index.addr};
 	}
 
-	public static void merge(Node bigNodeIndex, Node smallNodeIndex, int mergeInterval)
+	public static Temp.Node buildNode(String addr,int value, String nextAddr)
 	{
-		Node bigNodeIndexTemp = bigNodeIndex;
-		Node smallNodeIndexTemp = smallNodeIndex;
-		int interval = 0;
-
-		while (bigNodeIndexTemp != null)
+		Temp.Node node = nodeMap.get(addr);
+		if(node == null)
 		{
-			interval ++;
-			if (interval == mergeInterval)
-			{
-				Node temp = bigNodeIndexTemp.getNext();
-				bigNodeIndexTemp.setNext(smallNodeIndexTemp);
-				smallNodeIndexTemp.setNext(temp);
-				bigNodeIndexTemp = temp;
-				smallNodeIndexTemp = smallNodeIndexTemp.getPre();
-				interval= 0;
-
-				if (smallNodeIndexTemp == null)
-				{
-					break;
-				}
-			}
-			else
-			{
-				bigNodeIndexTemp = bigNodeIndexTemp.getNext();
-			}
+			node = new Temp.Node(addr, value, null, null);
+			nodeMap.put(addr, node);
 		}
+		if(node.value == 0)
+			node.value = value;
+
+		//补全前后节点
+		Temp.Node next = nodeMap.get(nextAddr);
+		if(next == null && !"-1".equals(nextAddr))
+		{
+			next = new Temp.Node(nextAddr, 0, null, null);
+			nodeMap.put(nextAddr, next);
+		}
+		node.next = next;
+		if (next != null)
+			next.pre = node;
+		//System.out.println("【Test】"+ node.toString());
+		return node;
 	}
 
-	static class Node
+	static class  Node
 	{
-		String address;
-		int data;
-		Node pre;
-		Node next;
+		String addr;
+		int value;
+		Temp.Node pre;
+		Temp.Node next;
 
-		public Node(String address, int data, Node pre, Node next)
+		public Node(String addr, int value, Temp.Node pre, Temp.Node next)
 		{
-			this.address = address;
-			this.data = data;
-			this.next = next;
+			this.addr = addr;
+			this.value = value;
 			this.pre = pre;
-		}
-
-		public Node(String address)
-		{
-			this(address, 0, null, null);
-		}
-
-		public String getAddress()
-		{
-			return address;
-		}
-
-		public void setAddress(String address)
-		{
-			this.address = address;
-		}
-
-		public int getData()
-		{
-			return data;
-		}
-
-		public void setData(int data)
-		{
-			this.data = data;
-		}
-
-		public Node getPre()
-		{
-			return pre;
-		}
-
-		public void setPre(Node pre)
-		{
-			this.pre = pre;
-		}
-
-		public Node getNext()
-		{
-			return next;
-		}
-
-		public void setNext(Node next)
-		{
 			this.next = next;
 		}
-
 
 		@Override
 		public String toString()
 		{
-			return address + " " + data + " " + (next != null ? next.getAddress() : "-1");
+			return addr + " " + value + " " + (next == null ? -1 : next.addr);
 		}
 	}
 }

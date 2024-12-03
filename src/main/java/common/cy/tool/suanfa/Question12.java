@@ -23,7 +23,54 @@ public class Question12
 	{
 		Scanner in = new Scanner(System.in);
 		String s = in.nextLine();
-		System.out.println(longestValidParentheses(s));
+		System.out.println(longestValidParentheses2(s));
+	}
+
+	public static int longestValidParentheses2(String s)
+	{
+		Stack<Integer> stack = new Stack<Integer>();
+		int ans = 0;
+		int max = 0;
+		int[] mark = new int[s.length()];
+		for(int i=0;i<s.length();i++)
+		{
+			if(s.charAt(i) == '(')
+			{
+				stack.push(1);
+			}
+			else
+			{
+				if(!stack.isEmpty())
+				{
+					mark[i] = 1;
+					for(int j=i-1;j>=0;j--)
+					{
+						if(mark[j] == 0)
+						{
+							mark[j] = 1;
+							break;
+						}
+					}
+					stack.pop();
+				}
+			}
+		}
+		System.out.println(Arrays.toString(mark));
+		for (int i = 0; i < mark.length; i++)
+		{
+			if (mark[i] == 1)
+			{
+				ans++;
+			}
+			else
+			{
+				max = Math.max(max, ans);
+				ans = 0;
+			}
+			if (i == mark.length - 1)
+				max = Math.max(max, ans);
+		}
+		return max;
 	}
 
 	public static int longestValidParentheses(String s)

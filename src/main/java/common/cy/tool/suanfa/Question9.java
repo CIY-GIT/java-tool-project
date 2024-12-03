@@ -37,12 +37,61 @@ public class Question9
 		Scanner scanner = new Scanner(System.in);
 		String s = scanner.nextLine();
 
+		System.out.println(getBestSubString2(s));
+	}
+
+	public static int getBestSubString2(String s)
+	{
+		int n = s.length();
+		int max = 0;
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = i; j < n; j++)
+			{
+				String subString = s.substring(i, j + 1);
+				if (isBestString(subString))
+					max	= Math.max(max, subString.length());
+			}
+		}
+		return max;
+	}
+
+	public static boolean isBestString(String s)
+	{
+		int n = s.length();
+		if (n == 1)
+			return true;
+
+		Map<Integer, Integer> counter = new HashMap<>();
+		for (int i = 0; i < n; i++)
+		{
+			int digit = s.charAt(i) - '0';
+			if (!counter.containsKey(digit))
+				counter.put(digit, 1);
+			else
+				counter.put(digit, counter.get(digit) + 1);
+		}
+
+		//查找奇数个数的数字
+		int jishuCounter = 0;
+		for (Map.Entry<Integer, Integer> entry : counter.entrySet())
+		{
+			if (entry.getValue() % 2 == 1)
+				jishuCounter++;
+		}
+
+		return jishuCounter <= 1;
+	}
+
+	public static int getBestSubString(String s)
+	{
 		int n = s.length();
 		Map<Integer, Integer> prefix = new HashMap<>();
 		prefix.put(0, -1);
 		int ans = 0;
 		int sequence = 0;
-		for (int j = 0; j < n; ++j)
+
+		for (int j = 0; j < n; j++)
 		{
 			int digit = s.charAt(j) - '0';
 			sequence ^= (1 << digit);
@@ -54,7 +103,7 @@ public class Question9
 			{
 				prefix.put(sequence, j);
 			}
-			for (int k = 0; k < 10; ++k)
+			for (int k = 0; k < 10; k++)
 			{
 				if (prefix.containsKey(sequence ^ (1 << k)))
 				{
@@ -62,8 +111,7 @@ public class Question9
 				}
 			}
 		}
-
-		System.out.println(ans);
+		return ans;
 	}
 
 }
