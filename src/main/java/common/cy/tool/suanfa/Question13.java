@@ -69,7 +69,7 @@ public class Question13
 	public static int lengthOfLongestSubstring(String s)
 	{
 		Map<Character, Integer> dic = new HashMap<>();
-		int i = -1;
+		int i = -1;//左指针：尽量重复元素的最后一次出现的坐 标
 		int ans = 0;
 		int len = s.length();
 		for (int j = 0; j < len; j++)
